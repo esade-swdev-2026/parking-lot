@@ -1,20 +1,19 @@
 import typer
 
-app = typer.Typer(help="Replace this with your project's command-line interface.")
+app = typer.Typer(help="A simple command-line application for managing a parking lot.")
 
 
 @app.command()
-def greet(name: str, count: int = 1) -> None:
-    if count < 1:
-        typer.echo("count must be at least 1", err=True)
+def park(plate: str = typer.Argument(..., help="License plate of the vehicle."),
+    spaces: int = typer.Option(10, "--spaces", help="Total number of parking spaces."),
+) -> None:
+    """Park a car in the parking lot."""
+    if spaces < 1:
+        typer.echo("The number of parking spaces must be at least 1.", err=True)
         raise typer.Exit(code=1)
-    for _ in range(count):
-        typer.echo(f"Hello, {name}!")
 
-
-@app.command()
-def bye(name: str) -> None:
-    typer.echo(f"Goodbye, {name}.")
+    typer.echo(f"Vehicle {plate} parked successfully.")
+    typer.echo(f"Total parking spaces: {spaces}")
 
 
 if __name__ == "__main__":
