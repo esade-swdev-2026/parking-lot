@@ -1,9 +1,6 @@
-# app
+# Parking-LOT
 
-> **First thing: rename `app` to your project.** It appears in this file, in
-> `pyproject.toml` (`name`, `[project.scripts]`, `[tool.hatch.build.targets.wheel]`),
-> in the folder `src/app/`, and in the imports under `tests/`. Session 5's lab walks
-> you through it.
+Parking-LOT is a parking lot staff, to help  manage the daily activity of a parking lot from the terminal. With it, staff will be able to register when each car enters and leaves, calculate how much each driver has to pay based on the time parked, and check at any moment how many free spaces are left. 
 
 One or two sentences on what your program does and who it is for.
 
@@ -21,9 +18,9 @@ and CI resolve the same ones. When you change a dependency in `pyproject.toml`, 
 ## Run
 
 ```
-uv run app --help
-uv run app greet World
-uv run app greet World --count 3
+uv run parking-lot --help
+uv run parking-lot free 30
+uv run parking-lot free 30 --capacity 50
 ```
 
 ## Develop
@@ -41,7 +38,7 @@ If they pass here, CI passes.
 ## Layout
 
 ```
-src/app/          your package — importable, installable, not just a script
+src/parking_lot/          your package — importable, installable, not just a script
   cli.py          the typer command-line interface
   __main__.py     lets `python -m app` work
 tests/            pytest tests, mirroring src/

@@ -5,24 +5,18 @@ from parking_lot.cli import app
 runner = CliRunner()
 
 
-def test_greet_says_hello() -> None:
-    result = runner.invoke(app, ["greet", "Ada"])
+def test_free_shows_the_free_spaces() -> None:
+    result = runner.invoke(app, ["free", "30"])
     assert result.exit_code == 0
-    assert "Hello, Ada!" in result.stdout
+    assert "70 free spaces" in result.stdout
 
 
-def test_greet_repeats_with_count() -> None:
-    result = runner.invoke(app, ["greet", "Ada", "--count", "3"])
-    assert result.exit_code == 0
-    assert result.stdout.count("Hello, Ada!") == 3
-
-
-def test_greet_rejects_bad_count() -> None:
-    result = runner.invoke(app, ["greet", "Ada", "--count", "0"])
+def test_free_rejects_more_cars_than_capacity() -> None:
+    result = runner.invoke(app, ["free", "120"])
     assert result.exit_code == 1
 
 
-def test_bye_says_goodbye() -> None:
-    result = runner.invoke(app, ["bye", "Ada"])
+def test_free_uses_a_custom_capacity() -> None:
+    result = runner.invoke(app, ["free", "30", "--capacity", "50"])
     assert result.exit_code == 0
-    assert "Goodbye, Ada." in result.stdout
+    assert "20 free spaces" in result.stdout
