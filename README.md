@@ -2,7 +2,9 @@
 
 Parking-LOT is a parking lot staff, to help  manage the daily activity of a parking lot from the terminal. With it, staff will be able to register when each car enters and leaves, calculate how much each driver has to pay based on the time parked, and check at any moment how many free spaces are left. 
 
-One or two sentences on what your program does and who it is for.
+## I/O
+
+All I/O lives in `free()` in `src/parking_lot/cli.py`: two `typer.echo` calls (the result and the error message) and one `raise typer.Exit(code=1)`. No files are read or written. The free-spaces calculation is currently mixed with this I/O inside the same function.
 
 ## Install
 
