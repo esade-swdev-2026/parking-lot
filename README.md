@@ -1,10 +1,19 @@
-# Parking-LOT
+# Parking-lot
 
-Parking-LOT is a parking lot staff, to help  manage the daily activity of a parking lot from the terminal. With it, staff will be able to register when each car enters and leaves, calculate how much each driver has to pay based on the time parked, and check at any moment how many free spaces are left. 
+Parking-lot is a parking lot staff, to help  manage the daily activity of a parking lot from the terminal. With it, staff will be able to register when each car enters and leaves, calculate how much each driver has to pay based on the time parked, and check at any moment how many free spaces are left. 
 
 ## I/O
 
 All I/O lives in `free()` in `src/parking_lot/cli.py`: two `typer.echo` calls (the result and the error message) and one `raise typer.Exit(code=1)`. No files are read or written. The free-spaces calculation is currently mixed with this I/O inside the same function.
+
+## Pure functions to test
+
+1. `parking_is_full` — whether the parking lot is full
+2. `car_is_inside` — whether a car is inside
+3. `car_enter_parking` — next state when a car enters
+4. `car_exists_parking` — next state when a car leaves
+5. `minutes_parked` — minutes between entry and exit
+6. `price_to_pay_for_park` — price to pay
 
 ## Install
 
