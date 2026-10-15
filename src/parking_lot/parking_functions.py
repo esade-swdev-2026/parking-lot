@@ -48,3 +48,11 @@ def price_to_pay_for_park(minutes: int, price_per_minute: float) -> float:
     if minutes < 0:
         raise ValueError("minutes cannot be negative")
     return minutes * price_per_minute
+
+
+def free_spaces_in_parking(
+    occupied: int, capacity: int
+) -> int:  # preguntarle a profe si esto soluciona el problema
+    if occupied < 0 or occupied > capacity:
+        raise ValueError("Invalid number of parking spaces")
+    return capacity - occupied
