@@ -39,19 +39,19 @@ def test_car_enter_parking_rejects_the_same_car_twice() -> None:
         parking_lot.parking_functions.car_enter_parking({"1234ABC": NINE}, "1234ABC", TEN, 100)
 
 
-def test_car_exists_parking_removes_the_car() -> None:
-    cars = parking_lot.parking_functions.car_exists_parking({"1234ABC": NINE}, "1234ABC")
+def test_car_leaves_parking_removes_the_car() -> None:
+    cars = parking_lot.parking_functions.car_leaves_parking({"1234ABC": NINE}, "1234ABC")
     assert cars == {}
 
 
-def test_car_exists_parking_rejects_when_empty() -> None:
+def test_car_leaves_parking_rejects_when_empty() -> None:
     with pytest.raises(ValueError):
-        parking_lot.parking_functions.car_exists_parking({}, "1234ABC")
+        parking_lot.parking_functions.car_leaves_parking({}, "1234ABC")
 
 
-def test_car_exists_parking_rejects_a_missing_car() -> None:
+def test_car_leaves_parking_rejects_a_missing_car() -> None:
     with pytest.raises(ValueError):
-        parking_lot.parking_functions.car_exists_parking({"1234ABC": NINE}, "9999ZZZ")
+        parking_lot.parking_functions.car_leaves_parking({"1234ABC": NINE}, "9999ZZZ")
 
 
 def test_minutes_parked_one_hour() -> None:

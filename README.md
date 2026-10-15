@@ -11,7 +11,7 @@ All I/O lives in `free()` in `src/parking_lot/cli.py`: two `typer.echo` calls (t
 1. `parking_is_full` — whether the parking lot is full
 2. `car_is_inside` — whether a car is inside
 3. `car_enter_parking` — next state when a car enters
-4. `car_exists_parking` — next state when a car leaves
+4. `car_leaves_parking` — next state when a car leaves
 5. `minutes_parked` — minutes between entry and exit
 6. `price_to_pay_for_park` — price to pay
 

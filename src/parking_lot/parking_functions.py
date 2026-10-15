@@ -25,7 +25,7 @@ def car_enter_parking(
     return new_cars
 
 
-def car_exists_parking(cars: dict[str, datetime], plate: str) -> dict[str, datetime]:
+def car_leaves_parking(cars: dict[str, datetime], plate: str) -> dict[str, datetime]:
     if len(cars) == 0:
         raise ValueError("the parking lot is empty")
     if not car_is_inside(cars, plate):
