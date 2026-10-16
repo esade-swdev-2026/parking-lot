@@ -3,10 +3,9 @@ from datetime import datetime
 DATA_FILE = "parking.txt"
 HOURS_PER_DAY = 24
 MINUTES_PER_HOUR = 60
-
-
-def parking_is_full(occupied: int, capacity: int) -> bool:
-    return occupied >= capacity
+ANY_YEAR = 2000
+ANY_MONTH = 1
+ANY_DAY = 1
 
 
 def car_is_inside(cars: dict[str, datetime], plate: str) -> bool:
@@ -50,9 +49,17 @@ def price_to_pay_for_park(minutes: int, price_per_minute: float) -> float:
     return minutes * price_per_minute
 
 
-def free_spaces_in_parking(
-    occupied: int, capacity: int
-) -> int:  # preguntarle a profe si esto soluciona el problema
+def free_spaces_in_parking(occupied: int, capacity: int) -> int:
     if occupied < 0 or occupied > capacity:
         raise ValueError("Invalid number of parking spaces")
     return capacity - occupied
+
+
+def parking_is_full(occupied: int, capacity: int) -> bool:
+    if occupied < 0 or occupied > capacity:
+        raise ValueError("Invalid number of parking spaces")
+    return occupied >= capacity
+
+
+def time_of_day(hour: int, minute: int) -> datetime:
+    return datetime(ANY_YEAR, ANY_MONTH, ANY_DAY, hour, minute)

@@ -15,6 +15,7 @@ All I/O lives in the commands `free()` and `price()` in `src/parking_lot/cli.py`
 5. `car_leaves_parking` — next state when a car leaves
 6. `minutes_parked` — minutes between entry and exit
 7. `price_to_pay_for_park` — price to pay
+8. `time_of_day` — a time of day from an hour and a minute
 
 ## Install
 
@@ -35,6 +36,8 @@ uv run parking-lot free 30
 uv run parking-lot free 30 --capacity 50
 uv run parking-lot price 60 
 uv run parking-lot price 60 --price-per-minute 0.10
+uv run parking-lot full 100
+uv run parking-lot stay 9 40 11 15
 ```
 
 ## Develop
