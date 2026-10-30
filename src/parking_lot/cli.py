@@ -19,7 +19,7 @@ def main() -> None:
     """Terminal Parking Lot Manager"""
 
 
-@app.command()
+@app.command(help="Show the number of available parking spaces.")
 def free(occupied: int, capacity: int = DEFAULT_CAPACITY) -> None:
     try:
         spaces = free_spaces_in_parking(occupied, capacity)
@@ -29,7 +29,7 @@ def free(occupied: int, capacity: int = DEFAULT_CAPACITY) -> None:
     typer.echo(f"{spaces} free spaces")
 
 
-@app.command()
+@app.command(help="Calculate the parking price for a given number of minutes.")
 def price(minutes: int, price_per_minute: float = DEFAULT_PRICE_PER_MINUTE) -> None:
     try:
         total = price_to_pay_for_park(minutes, price_per_minute)
@@ -39,7 +39,7 @@ def price(minutes: int, price_per_minute: float = DEFAULT_PRICE_PER_MINUTE) -> N
     typer.echo(f"Price to pay for the parking: {total:.2f}€")
 
 
-@app.command()
+@app.command(help="Check whether the parking lot is full.")
 def full(occupied: int, capacity: int = DEFAULT_CAPACITY) -> None:
     try:
         is_full = parking_is_full(occupied, capacity)
@@ -52,7 +52,7 @@ def full(occupied: int, capacity: int = DEFAULT_CAPACITY) -> None:
         typer.echo("There are free spaces")
 
 
-@app.command()
+@app.command(help="Calculate the parking duration and total price.")
 def stay(
     entry_hour: int,
     entry_minute: int,
@@ -72,7 +72,7 @@ def stay(
     typer.echo(f"Price to pay for the parking: {total:.2f}€")
 
 
-@app.command()
+@app.command(help="Check whether a license plate is in the parking lot.")
 def check_if_car_inside(plate: str, parked: str = "") -> None:
     if not plate:
         typer.echo("The license plate cannot be empty", err=True)
