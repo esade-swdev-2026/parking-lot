@@ -72,3 +72,80 @@ def test_price_rejects_negative_minutes() -> None:
 def test_price_rejects_minutes_that_are_not_a_number() -> None:
     result = runner.invoke(app, ["price", "abc"])
     assert result.exit_code == 2
+
+
+@pytest.mark.parametrize(
+    ("arguments", "expected_message"),
+    [
+        (["full", "100"], "The parking is full"),
+        (["full", "99"], "There are free spaces"),
+        (["full", "0"], "There are free spaces"),
+        (["full", "50", "--capacity", "50"], "The parking is full"),
+    ],
+)
+def test_full_says_if_the_parking_is_full(arguments: list[str], expected_message: str) -> None:
+    result = runner.invoke(app, arguments)
+    assert result.exit_code == 0
+    assert expected_message in result.stdout
+
+
+@pytest.mark.parametrize(
+    "arguments",
+    [
+        ["full", "120"],
+        ["full", "--", "-1"],
+    ],
+)
+def test_full_rejects_an_impossible_numer_of_cars(arguments: list[str]) -> None:
+    result = runner.invoke(app, arguments)
+    assert result.exit_code == 1
+    assert "Invalid number of parking spaces" in result.stderr
+
+
+def test_full_rejects_cars_that_are_not_a_number() -> None:
+    result = runner.invoke(app, ["full", "abc"])
+    assert result.exit_code == 2
+
+
+@pytest.mark.parametrize(
+    ("arguments", "expected_minutes", "expected_price"),
+    [
+        (["stay", "9", "40", "11", "15"], 95, "4.75€"),
+        (["stay", "9", "0", "9", "0"], 0, "0.00€"),
+        (["stay", "0", "0", "23", "59"], 1439, "71.95€"),
+        (["stay", "9", "0", "10", "0", "--price-per-minute", "0.10"], 60, "6.00€"),
+    ],
+)
+def test_stay_shows_the_minutes_and_the_price(
+    arguments: list[str], expected_minutes: int, expected_price: str
+) -> None:
+    result = runner.invoke(app, arguments)
+    assert result.exit_code == 0
+    assert f"Parked for {expected_minutes} minutes" in result.stdout
+    assert f"Price to pay for the parking: {expected_price}" in result.stdout
+
+
+@pytest.mark.parametrize(
+    ("arguments", "expected_error"),
+    [
+        (["stay", "11", "0", "9", "0"], "exit time cannot be before entry time"),
+        (["stay", "24", "0", "10", "0"], "hour"),
+        (["stay", "9", "60", "10", "0"], "minute"),
+    ],
+)
+def test_stay_rejects_impossible_times(arguments: list[str], expected_error: str) -> None:
+    result = runner.invoke(app, arguments)
+    assert result.exit_code == 1
+    assert expected_error in result.stderr
+
+
+@pytest.mark.parametrize(
+    "arguments",
+    [
+        ["stay", "9", "abc", "10", "0"],
+        ["stay", "9", "40"],
+    ],
+)
+def test_stay_rejects_wrong_arguments(arguments: list[str]) -> None:
+    result = runner.invoke(app, arguments)
+    assert result.exit_code == 2
