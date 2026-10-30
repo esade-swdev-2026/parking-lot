@@ -84,4 +84,3 @@ def check_if_car_inside(plate: str, parked: str = "") -> None:
         typer.echo(f"{plate} is inside the parking lot")
     else:
         typer.echo(f"{plate} is not inside the parking lot")
-

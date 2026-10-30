@@ -38,6 +38,7 @@ uv run parking-lot price 60
 uv run parking-lot price 60 --price-per-minute 0.10
 uv run parking-lot full 100
 uv run parking-lot stay 9 40 11 15
+uv run parking-lot check-if-car-inside 1234ABC --parked "1234ABC,5678DEF"
 ```
 
 ## Develop
@@ -62,3 +63,4 @@ src/parking_lot/          your package — importable, installable, not just a s
 tests/            pytest tests, mirroring src/
 pyproject.toml    dependencies and tool configuration — the single source of truth
 ```
+
