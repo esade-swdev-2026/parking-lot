@@ -6,15 +6,37 @@ from parking_lot.cli import app
 runner = CliRunner()
 
 
-def test_free_shows_the_free_spaces() -> None:
-    result = runner.invoke(app, ["free", "30"])
+@pytest.mark.parametrize(
+    ("arguments", "expected_message"),
+    [
+        (["free", "30"], "70 free spaces"),
+        (["free", "0"], "100 free spaces"),
+        (["free", "100"], "0 free spaces"),
+        (["free", "30", "--capacity", "50"], "20 free spaces"),
+    ],
+)
+def test_free_shows_the_free_spaces(arguments: list[str], expected_message: str) -> None:
+    result = runner.invoke(app, arguments)
     assert result.exit_code == 0
-    assert "70 free spaces" in result.stdout
+    assert expected_message in result.stdout
 
 
-def test_free_rejects_more_cars_than_capacity() -> None:
-    result = runner.invoke(app, ["free", "120"])
+@pytest.mark.parametrize(
+    "arguments",
+    [
+        ["free", "120"],
+        ["free", "--", "-1"],
+    ],
+)
+def test_free_rejects_an_impossible_number_of_cars(arguments: list[str]) -> None:
+    result = runner.invoke(app, arguments)
     assert result.exit_code == 1
+    assert "Invalid number of parking spaces" in result.stderr
+
+
+def test_free_rejects_cars_that_are_not_a_number() -> None:
+    result = runner.invoke(app, ["free", "abc"])
+    assert result.exit_code == 2
 
 
 @pytest.mark.parametrize(
