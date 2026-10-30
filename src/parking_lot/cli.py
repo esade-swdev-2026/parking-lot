@@ -70,3 +70,18 @@ def stay(
         raise typer.Exit(code=1) from error
     typer.echo(f"Parked for {minutes} minutes")
     typer.echo(f"Price to pay for the parking: {total:.2f}€")
+
+
+@app.command()
+def check_if_car_inside(plate: str, parked: str = "") -> None:
+    if not plate:
+        typer.echo("The license plate cannot be empty", err=True)
+        raise typer.Exit(code=1)
+
+    cars = parked.split(",") if parked else []
+
+    if plate in cars:
+        typer.echo(f"{plate} is inside the parking lot")
+    else:
+        typer.echo(f"{plate} is not inside the parking lot")
+
