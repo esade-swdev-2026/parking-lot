@@ -114,3 +114,13 @@ def test_time_of_day_keeps_hour_and_minute() -> None:
 def test_time_of_day_rejects_an_impossible_hour() -> None:
     with pytest.raises(ValueError):
         time_of_day(25, 0)
+
+
+def test_minutes_parked_across_two_months() -> None:
+    entry = datetime(2026, 10, 31, 23, 0)
+    exit_ = datetime(2026, 11, 1, 1, 0)
+    assert minutes_parked(entry, exit_) == 120
+
+
+def test_minutes_parked_is_zero_for_the_same_time() -> None:
+    assert minutes_parked(NINE, NINE) == 0
