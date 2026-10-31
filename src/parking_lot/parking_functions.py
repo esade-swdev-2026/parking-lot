@@ -1,6 +1,5 @@
 from datetime import datetime
 
-DATA_FILE = "parking.txt"
 ANY_YEAR = 2000
 ANY_MONTH = 1
 ANY_DAY = 1
@@ -48,15 +47,18 @@ def price_to_pay_for_park(minutes: int, price_per_minute: float) -> float:
     return minutes * price_per_minute
 
 
-def free_spaces_in_parking(occupied: int, capacity: int) -> int:
+def validate_occupied_spaces(occupied: int, capacity: int) -> None:
     if occupied < 0 or occupied > capacity:
         raise ValueError("Invalid number of parking spaces")
+
+
+def free_spaces_in_parking(occupied: int, capacity: int) -> int:
+    validate_occupied_spaces(occupied, capacity)
     return capacity - occupied
 
 
 def parking_is_full(occupied: int, capacity: int) -> bool:
-    if occupied < 0 or occupied > capacity:
-        raise ValueError("Invalid number of parking spaces")
+    validate_occupied_spaces(occupied, capacity)
     return occupied >= capacity
 
 
