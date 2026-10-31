@@ -124,3 +124,12 @@ def test_minutes_parked_across_two_months() -> None:
 
 def test_minutes_parked_is_zero_for_the_same_time() -> None:
     assert minutes_parked(NINE, NINE) == 0
+
+
+def test_price_to_pay_rejects_a_negative_price_per_minute() -> None:
+    with pytest.raises(ValueError):
+        price_to_pay_for_park(60, -0.05)
+
+
+def test_price_to_pay_is_zero_when_parking_is_free() -> None:
+    assert price_to_pay_for_park(60, 0.0) == 0.0

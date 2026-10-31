@@ -43,6 +43,8 @@ def minutes_parked(entry_time: datetime, exit_time: datetime) -> int:
 def price_to_pay_for_park(minutes: int, price_per_minute: float) -> float:
     if minutes < 0:
         raise ValueError("minutes cannot be negative")
+    if price_per_minute < 0:
+        raise ValueError("price per minute cannot be negative")
     return minutes * price_per_minute
 
 
