@@ -11,6 +11,7 @@ from parking_lot.parking_functions import (
     parking_is_full,
     price_to_pay_for_park,
     time_of_day,
+    validate_occupied_spaces,
 )
 
 NINE = datetime(2026, 10, 9, 9, 0)
@@ -114,3 +115,31 @@ def test_time_of_day_keeps_hour_and_minute() -> None:
 def test_time_of_day_rejects_an_impossible_hour() -> None:
     with pytest.raises(ValueError):
         time_of_day(25, 0)
+
+
+def test_minutes_parked_across_two_months() -> None:
+    entry = datetime(2026, 10, 31, 23, 0)
+    exit_ = datetime(2026, 11, 1, 1, 0)
+    assert minutes_parked(entry, exit_) == 120
+
+
+def test_minutes_parked_is_zero_for_the_same_time() -> None:
+    assert minutes_parked(NINE, NINE) == 0
+
+
+def test_price_to_pay_rejects_a_negative_price_per_minute() -> None:
+    with pytest.raises(ValueError):
+        price_to_pay_for_park(60, -0.05)
+
+
+def test_price_to_pay_is_zero_when_parking_is_free() -> None:
+    assert price_to_pay_for_park(60, 0.0) == 0.0
+
+
+def test_validate_occupied_spaces_accepts_a_full_parking() -> None:
+    validate_occupied_spaces(100, 100)
+
+
+def test_validate_occupied_spaces_rejects_negative_cars() -> None:
+    with pytest.raises(ValueError):
+        validate_occupied_spaces(-1, 100)

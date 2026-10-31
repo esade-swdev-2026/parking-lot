@@ -1,11 +1,9 @@
 from datetime import datetime
 
-DATA_FILE = "parking.txt"
-HOURS_PER_DAY = 24
-MINUTES_PER_HOUR = 60
 ANY_YEAR = 2000
 ANY_MONTH = 1
 ANY_DAY = 1
+SECONDS_PER_MINUTE = 60
 
 
 def car_is_inside(cars: dict[str, datetime], plate: str) -> bool:
@@ -37,27 +35,30 @@ def car_leaves_parking(cars: dict[str, datetime], plate: str) -> dict[str, datet
 def minutes_parked(entry_time: datetime, exit_time: datetime) -> int:
     if exit_time < entry_time:
         raise ValueError("exit time cannot be before entry time")
-    days = exit_time.day - entry_time.day
-    hours = exit_time.hour - entry_time.hour
-    minutes = exit_time.minute - entry_time.minute
-    return days * HOURS_PER_DAY * MINUTES_PER_HOUR + hours * MINUTES_PER_HOUR + minutes
+    parked_time = exit_time - entry_time
+    return int(parked_time.total_seconds() // SECONDS_PER_MINUTE)
 
 
 def price_to_pay_for_park(minutes: int, price_per_minute: float) -> float:
     if minutes < 0:
         raise ValueError("minutes cannot be negative")
+    if price_per_minute < 0:
+        raise ValueError("price per minute cannot be negative")
     return minutes * price_per_minute
 
 
-def free_spaces_in_parking(occupied: int, capacity: int) -> int:
+def validate_occupied_spaces(occupied: int, capacity: int) -> None:
     if occupied < 0 or occupied > capacity:
         raise ValueError("Invalid number of parking spaces")
+
+
+def free_spaces_in_parking(occupied: int, capacity: int) -> int:
+    validate_occupied_spaces(occupied, capacity)
     return capacity - occupied
 
 
 def parking_is_full(occupied: int, capacity: int) -> bool:
-    if occupied < 0 or occupied > capacity:
-        raise ValueError("Invalid number of parking spaces")
+    validate_occupied_spaces(occupied, capacity)
     return occupied >= capacity
 
 
