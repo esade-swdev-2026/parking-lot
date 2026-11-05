@@ -90,11 +90,13 @@ def check_if_car_inside(
     plate: str = typer.Argument(help="License plate to look for in the parking lot."),
     parked: str = typer.Option("", help="Comma-separated list of parked license plates."),
 ) -> None:
+    plate = plate.strip().upper()
+
     if not plate:
         typer.echo("The license plate cannot be empty", err=True)
         raise typer.Exit(code=1)
 
-    cars = parked.split(",") if parked else []
+    cars = [car.strip().upper() for car in parked.split(",") if car.strip()]
 
     if plate in cars:
         typer.echo(f"{plate} is inside the parking lot")
