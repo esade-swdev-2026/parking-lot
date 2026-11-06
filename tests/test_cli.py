@@ -73,6 +73,35 @@ def test_check_if_car_inside_rejects_an_empty_plate() -> None:
 @pytest.mark.parametrize(
     ("arguments", "expected_price"),
     [
+        (["price-with-cap", "60"], "3.00€"),
+        (["price-with-cap", "600"], "20.00€"),
+        (["price-with-cap", "1440"], "20.00€"),
+        (["price-with-cap", "600", "--daily-cap", "10"], "10.00€"),
+        (["price-with-cap", "0"], "0.00€"),
+    ],
+)
+def test_price_with_cap_shows_capped_price(arguments: list[str], expected_price: str) -> None:
+    result = runner.invoke(app, arguments)
+    assert result.exit_code == 0
+    assert f"Price to pay with daily cap: {expected_price}" in result.stdout
+
+
+@pytest.mark.parametrize("daily_cap", ["-5", "0"])
+def test_price_with_cap_rejects_non_positive_daily_cap(daily_cap: str) -> None:
+    result = runner.invoke(app, ["price-with-cap", "60", "--daily-cap", daily_cap])
+    assert result.exit_code == 1
+    assert "Daily cap must be greater than zero" in result.stderr
+
+
+def test_price_with_cap_rejects_negative_minutes() -> None:
+    result = runner.invoke(app, ["price-with-cap", "--", "-5"])
+    assert result.exit_code == 1
+    assert "minutes cannot be negative" in result.stderr
+
+
+@pytest.mark.parametrize(
+    ("arguments", "expected_price"),
+    [
         (["price", "60"], "3.00€"),
         (["price", "60", "--price-per-minute", "0.10"], "6.00€"),
         (["price", "0"], "0.00€"),
