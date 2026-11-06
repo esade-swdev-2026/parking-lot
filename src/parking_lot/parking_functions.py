@@ -6,6 +6,11 @@ ANY_DAY = 1
 SECONDS_PER_MINUTE = 60
 
 
+def normalize_plate(plate: str) -> str:
+    """Normalize a license plate by removing outer spaces and using uppercase."""
+    return plate.strip().upper()
+
+
 def car_is_inside(cars: dict[str, datetime], plate: str) -> bool:
     return plate in cars
 

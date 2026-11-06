@@ -8,6 +8,7 @@ from parking_lot.parking_functions import (
     car_leaves_parking,
     free_spaces_in_parking,
     minutes_parked,
+    normalize_plate,
     parking_is_full,
     price_to_pay_for_park,
     time_of_day,
@@ -16,6 +17,19 @@ from parking_lot.parking_functions import (
 
 NINE = datetime(2026, 10, 9, 9, 0)
 TEN = datetime(2026, 10, 9, 10, 0)
+
+
+@pytest.mark.parametrize(
+    ("plate", "expected"),
+    [
+        ("abc123", "ABC123"),
+        (" ABC123 ", "ABC123"),
+        ("AbC123", "ABC123"),
+        ("ABC 123", "ABC 123"),
+    ],
+)
+def test_normalize_plate(plate: str, expected: str) -> None:
+    assert normalize_plate(plate) == expected
 
 
 def test_parking_is_not_full_with_free_spaces() -> None:

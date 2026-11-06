@@ -71,6 +71,38 @@ def test_check_if_car_inside_rejects_an_empty_plate() -> None:
 
 
 @pytest.mark.parametrize(
+    ("plate", "parked"),
+    [
+        ("abc123", "ABC123,DEF456"),
+        (" ABC123 ", "abc123,DEF456"),
+        ("ABC123", " XYZ999 , abc123 "),
+    ],
+)
+def test_check_if_car_inside_normalizes_plates(plate: str, parked: str) -> None:
+    result = runner.invoke(
+        app,
+        ["check-if-car-inside", plate, "--parked", parked],
+    )
+    assert result.exit_code == 0
+    assert "ABC123 is inside the parking lot" in result.stdout
+
+
+def test_check_if_car_inside_preserves_internal_spaces() -> None:
+    result = runner.invoke(
+        app,
+        ["check-if-car-inside", "ABC123", "--parked", "ABC 123"],
+    )
+    assert result.exit_code == 0
+    assert "ABC123 is not inside the parking lot" in result.stdout
+
+
+def test_check_if_car_inside_rejects_whitespace_plate() -> None:
+    result = runner.invoke(app, ["check-if-car-inside", "   "])
+    assert result.exit_code == 1
+    assert "The license plate cannot be empty" in result.stderr
+
+
+@pytest.mark.parametrize(
     ("arguments", "expected_price"),
     [
         (["price", "60"], "3.00€"),

@@ -3,6 +3,7 @@ import typer
 from parking_lot.parking_functions import (
     free_spaces_in_parking,
     minutes_parked,
+    normalize_plate,
     parking_is_full,
     price_to_pay_for_park,
     time_of_day,
@@ -90,11 +91,13 @@ def check_if_car_inside(
     plate: str = typer.Argument(help="License plate to look for in the parking lot."),
     parked: str = typer.Option("", help="Comma-separated list of parked license plates."),
 ) -> None:
+    plate = normalize_plate(plate)
+
     if not plate:
         typer.echo("The license plate cannot be empty", err=True)
         raise typer.Exit(code=1)
 
-    cars = parked.split(",") if parked else []
+    cars = [normalize_plate(car) for car in parked.split(",") if car.strip()]
 
     if plate in cars:
         typer.echo(f"{plate} is inside the parking lot")
