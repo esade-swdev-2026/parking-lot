@@ -7,7 +7,7 @@ from parking_lot.parking_functions import (
     price_to_pay_for_park,
     time_of_day,
 )
-from parking_lot.pricing import price_with_daily_cap
+from parking_lot.pricing import DEFAULT_DAILY_CAP, price_with_daily_cap
 
 app = typer.Typer(help="Terminal Parking Lot Manager")
 
@@ -56,7 +56,7 @@ def price_with_cap(
         help="Parking price per minute in euros.",
     ),
     daily_cap: float = typer.Option(
-        20.0,
+        DEFAULT_DAILY_CAP,
         help="Maximum parking price per 24-hour period in euros.",
     ),
 ) -> None:

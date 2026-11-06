@@ -86,10 +86,11 @@ def test_price_with_cap_shows_capped_price(arguments: list[str], expected_price:
     assert f"Price to pay with daily cap: {expected_price}" in result.stdout
 
 
-def test_price_with_cap_rejects_negative_daily_cap() -> None:
-    result = runner.invoke(app, ["price-with-cap", "60", "--daily-cap", "-5"])
+@pytest.mark.parametrize("daily_cap", ["-5", "0"])
+def test_price_with_cap_rejects_non_positive_daily_cap(daily_cap: str) -> None:
+    result = runner.invoke(app, ["price-with-cap", "60", "--daily-cap", daily_cap])
     assert result.exit_code == 1
-    assert "Daily cap cannot be negative" in result.stderr
+    assert "Daily cap must be greater than zero" in result.stderr
 
 
 def test_price_with_cap_rejects_negative_minutes() -> None:
