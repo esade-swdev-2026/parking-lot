@@ -87,6 +87,15 @@ def test_check_if_car_inside_normalizes_plates(plate: str, parked: str) -> None:
     assert "ABC123 is inside the parking lot" in result.stdout
 
 
+def test_check_if_car_inside_preserves_internal_spaces() -> None:
+    result = runner.invoke(
+        app,
+        ["check-if-car-inside", "ABC123", "--parked", "ABC 123"],
+    )
+    assert result.exit_code == 0
+    assert "ABC123 is not inside the parking lot" in result.stdout
+
+
 def test_check_if_car_inside_rejects_whitespace_plate() -> None:
     result = runner.invoke(app, ["check-if-car-inside", "   "])
     assert result.exit_code == 1
