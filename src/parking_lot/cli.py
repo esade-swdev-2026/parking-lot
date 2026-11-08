@@ -8,6 +8,7 @@ from parking_lot.parking_functions import (
     price_to_pay_for_park,
     time_of_day,
 )
+from parking_lot.pricing import DEFAULT_DAILY_CAP, price_with_daily_cap
 
 app = typer.Typer(help="Terminal Parking Lot Manager")
 
@@ -46,6 +47,27 @@ def price(
         typer.echo(str(error), err=True)
         raise typer.Exit(code=1) from error
     typer.echo(f"Price to pay for the parking: {total:.2f}€")
+
+
+@app.command(help="Calculate parking price with a daily cap.")
+def price_with_cap(
+    minutes: int = typer.Argument(help="Number of minutes the car was parked."),
+    price_per_minute: float = typer.Option(
+        DEFAULT_PRICE_PER_MINUTE,
+        help="Parking price per minute in euros.",
+    ),
+    daily_cap: float = typer.Option(
+        DEFAULT_DAILY_CAP,
+        help="Maximum parking price per 24-hour period in euros.",
+    ),
+) -> None:
+    try:
+        total = price_with_daily_cap(minutes, price_per_minute, daily_cap)
+    except ValueError as error:
+        typer.echo(str(error), err=True)
+        raise typer.Exit(code=1) from error
+
+    typer.echo(f"Price to pay with daily cap: {total:.2f}€")
 
 
 @app.command(help="Check whether the parking lot is full.")
