@@ -4,7 +4,16 @@ Parking-lot is a command-line tool for parking lot staff, to help them manage th
 
 ## I/O
 
-All I/O lives in the commands `free()` and `price()` in `src/parking_lot/cli.py`: `typer.echo` calls (the result and the error message) and `raise typer.Exit(code=1)`. No files are read or written. The validations and calculations live in pure functions in `parking_functions.py`, which raise `ValueError` when the input makes no sense; the commands catch it and turn it into a clear message.
+Console input and output are handled in `src/parking_lot/cli.py` with Typer.
+The commands display results with `typer.echo` and report errors with
+`typer.Exit(code=1)`.
+
+The `enter` and `leave` commands use `src/parking_lot/storage.py` to read and
+write the parking state in `data/lot.json`. Each license plate is stored
+with its entry time. The `data/` folder is ignored by Git.
+
+Validation and calculations live in the parking functions. These functions
+can raise `ValueError`, which the commands catch and show as a clear message.
 
 ## Pure functions to test
 
@@ -64,3 +73,63 @@ tests/            pytest tests, mirroring src/
 pyproject.toml    dependencies and tool configuration — the single source of truth
 ```
 
+
+## Run with Docker
+
+Start Docker and run these commands from the project folder.
+
+### Build the image
+
+If this branch already contains the Dockerfile from PR #6, build with:
+
+```bash
+docker build -t parking-lot:persistence .
+```
+
+If this branch does not have the Dockerfile yet, use this option instead:
+
+```bash
+git fetch origin add-dockerfile
+git show FETCH_HEAD:Dockerfile | docker build -t parking-lot:persistence -f - .
+```
+
+This uses the Dockerfile from PR #6 with the code in your current folder.
+
+Show the available commands:
+
+```bash
+docker run --rm parking-lot:persistence --help
+```
+
+### Check persistence between containers
+
+The app saves its state in `/app/data/lot.json` inside the container.
+Use the same named volume for each command.
+
+Register a car:
+
+```bash
+docker run --rm -v parking-lot-lab16-test:/app/data parking-lot:persistence enter 1234ABC
+```
+
+Expected output: `1234ABC entered the parking lot`.
+
+Read the saved file from a new container:
+
+```bash
+docker run --rm -v parking-lot-lab16-test:/app/data --entrypoint cat parking-lot:persistence /app/data/lot.json
+```
+
+The file should contain `1234ABC` and its entry time.
+
+Register the car leaving, using another container:
+
+```bash
+docker run --rm -v parking-lot-lab16-test:/app/data parking-lot:persistence leave 1234ABC
+```
+
+Expected output: `1234ABC left the parking lot`.
+
+Each command creates a new container. The `--rm` option removes that
+container when it finishes, but the named volume keeps the parking state
+available for the next run.
