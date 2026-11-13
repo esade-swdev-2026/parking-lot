@@ -1,6 +1,10 @@
+from datetime import datetime
+
 import typer
 
 from parking_lot.parking_functions import (
+    car_enter_parking,
+    car_leaves_parking,
     free_spaces_in_parking,
     minutes_parked,
     normalize_plate,
@@ -9,6 +13,7 @@ from parking_lot.parking_functions import (
     time_of_day,
 )
 from parking_lot.pricing import DEFAULT_DAILY_CAP, price_with_daily_cap
+from parking_lot.storage import load_cars, save_cars
 
 app = typer.Typer(help="Terminal Parking Lot Manager")
 
@@ -125,3 +130,46 @@ def check_if_car_inside(
         typer.echo(f"{plate} is inside the parking lot")
     else:
         typer.echo(f"{plate} is not inside the parking lot")
+
+
+@app.command(help="Register a car entering the parking lot.")
+def enter(
+    plate: str = typer.Argument(help="License plate of the car."),
+    capacity: int = typer.Option(DEFAULT_CAPACITY, help="Parking capacity."),
+) -> None:
+    plate = normalize_plate(plate)
+
+    if not plate:
+        typer.echo("The license plate cannot be empty.", err=True)
+        raise typer.Exit(code=1)
+
+    try:
+        cars = load_cars()
+        updated_cars = car_enter_parking(cars, plate, datetime.now(), capacity)
+        save_cars(updated_cars)
+    except (ValueError, OSError) as error:
+        typer.echo(str(error), err=True)
+        raise typer.Exit(code=1) from error
+
+    typer.echo(f"{plate} entered the parking lot")
+
+
+@app.command(help="Register a car leaving the parking lot.")
+def leave(
+    plate: str = typer.Argument(help="License plate of the car."),
+) -> None:
+    plate = normalize_plate(plate)
+
+    if not plate:
+        typer.echo("The license plate cannot be empty.", err=True)
+        raise typer.Exit(code=1)
+
+    try:
+        cars = load_cars()
+        updated_cars = car_leaves_parking(cars, plate)
+        save_cars(updated_cars)
+    except (ValueError, OSError) as error:
+        typer.echo(str(error), err=True)
+        raise typer.Exit(code=1) from error
+
+    typer.echo(f"{plate} left the parking lot")
