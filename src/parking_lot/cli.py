@@ -1,5 +1,6 @@
 from datetime import datetime
 from pathlib import Path
+from typing import Annotated
 
 import typer
 
@@ -33,7 +34,9 @@ def free(
         None, help="Occupied spaces. If omitted, it is read from the saved lot."
     ),
     capacity: int = typer.Option(DEFAULT_CAPACITY, help="Maximum number of parking spaces."),
-    lot_file: Path = typer.Option(DEFAULT_LOT_FILE, help="File where the parking lot is saved."),
+    lot_file: Annotated[
+        Path, typer.Option(help="File where the parking lot is saved.")
+    ] = DEFAULT_LOT_FILE,
 ) -> None:
     if occupied is None:
         occupied = len(load_lot(lot_file))
@@ -87,7 +90,9 @@ def full(
         None, help="Occupied spaces. If omitted, it is read from the saved lot."
     ),
     capacity: int = typer.Option(DEFAULT_CAPACITY, help="Maximum number of parking spaces."),
-    lot_file: Path = typer.Option(DEFAULT_LOT_FILE, help="File where the parking lot is saved."),
+    lot_file: Annotated[
+        Path, typer.Option(help="File where the parking lot is saved.")
+    ] = DEFAULT_LOT_FILE,
 ) -> None:
     if occupied is None:
         occupied = len(load_lot(lot_file))
@@ -147,7 +152,9 @@ def check_if_car_inside(
 def enter(
     plate: str = typer.Argument(help="License plate of the car entering."),
     capacity: int = typer.Option(DEFAULT_CAPACITY, help="Maximum number of parking spaces."),
-    lot_file: Path = typer.Option(DEFAULT_LOT_FILE, help="File where the parking lot is saved."),
+    lot_file: Annotated[
+        Path, typer.Option(help="File where the parking lot is saved.")
+    ] = DEFAULT_LOT_FILE,
 ) -> None:
     plate = normalize_plate(plate)
     if not plate:
@@ -165,7 +172,9 @@ def enter(
 @app.command(help="Register a car leaving the parking lot.")
 def leave(
     plate: str = typer.Argument(help="License plate of the car leaving."),
-    lot_file: Path = typer.Option(DEFAULT_LOT_FILE, help="File where the parking lot is saved."),
+    lot_file: Annotated[
+        Path, typer.Option(help="File where the parking lot is saved.")
+    ] = DEFAULT_LOT_FILE,
 ) -> None:
     plate = normalize_plate(plate)
     if not plate:
