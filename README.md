@@ -80,25 +80,14 @@ Start Docker and run these commands from the project folder.
 
 ### Build the image
 
-If this branch already contains the Dockerfile from PR #6, build with:
-
 ```bash
-docker build -t parking-lot:persistence .
+docker build -t parking-lot .
 ```
-
-If this branch does not have the Dockerfile yet, use this option instead:
-
-```bash
-git fetch origin add-dockerfile
-git show FETCH_HEAD:Dockerfile | docker build -t parking-lot:persistence -f - .
-```
-
-This uses the Dockerfile from PR #6 with the code in your current folder.
 
 Show the available commands:
 
 ```bash
-docker run --rm parking-lot:persistence --help
+docker run --rm parking-lot --help
 ```
 
 ### Check persistence between containers
@@ -109,7 +98,7 @@ Use the same named volume for each command.
 Register a car:
 
 ```bash
-docker run --rm -v parking-lot-lab16-test:/app/data parking-lot:persistence enter 1234ABC
+docker run --rm -v parking-lot-data:/app/data parking-lot enter 1234ABC
 ```
 
 Expected output: `1234ABC entered the parking lot`.
@@ -117,7 +106,7 @@ Expected output: `1234ABC entered the parking lot`.
 Read the saved file from a new container:
 
 ```bash
-docker run --rm -v parking-lot-lab16-test:/app/data --entrypoint cat parking-lot:persistence /app/data/lot.json
+docker run --rm -v parking-lot-data:/app/data --entrypoint cat parking-lot /app/data/lot.json
 ```
 
 The file should contain `1234ABC` and its entry time.
@@ -125,7 +114,7 @@ The file should contain `1234ABC` and its entry time.
 Register the car leaving, using another container:
 
 ```bash
-docker run --rm -v parking-lot-lab16-test:/app/data parking-lot:persistence leave 1234ABC
+docker run --rm -v parking-lot-data:/app/data parking-lot leave 1234ABC
 ```
 
 Expected output: `1234ABC left the parking lot`.
