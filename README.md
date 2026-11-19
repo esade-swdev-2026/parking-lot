@@ -45,9 +45,12 @@ uv run parking-lot free 30
 uv run parking-lot free 30 --capacity 50
 uv run parking-lot price 60 
 uv run parking-lot price 60 --price-per-minute 0.10
+uv run parking-lot price-with-cap 200
 uv run parking-lot full 100
 uv run parking-lot stay 9 40 11 15
 uv run parking-lot check-if-car-inside 1234ABC --parked "1234ABC,5678DEF"
+uv run parking-lot enter 1234ABC
+uv run parking-lot leave 1234ABC
 ```
 
 ## Develop
@@ -73,6 +76,11 @@ tests/            pytest tests, mirroring src/
 pyproject.toml    dependencies and tool configuration — the single source of truth
 ```
 
+## Use of AI
+
+We used ChatGPT as a support tool during the development of this project. It helped us understand Git and Docker commands, troubleshoot merge conflicts, review code and tests, and improve documentation.
+
+We reviewed and tested the suggested changes ourselves before including them in the project. All final decisions and responsibility for the code remain with our team.
 
 ## Run with Docker
 
