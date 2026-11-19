@@ -1,0 +1,75 @@
+
+name: release
+
+on:
+  push:
+    tags:
+      - "v1.0"
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v4
+
+      - name: Install uv and Python
+        uses: astral-sh/setup-uv@v7
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        run: uv sync --locked
+
+      - name: Lint
+        run: uv run ruff check .
+
+      - name: Formatting
+        run: uv run ruff format --check .
+
+      - name: Types
+        run: uv run mypy src tests
+
+      - name: Tests
+        run: uv run pytest
+
+      - name: Build the image
+        run: docker build -t parking-lot .
+
+      - name: Run the image
+        run: docker run --rm parking-lot --help
+        - name: Test persistence between containers
+          run: |
+            docker run --rm -v parking-lot-ci-data:/app/data parking-lot enter 1234ABC
+            docker run --rm -v parking-lot-ci-data:/app/data --entrypoint cat parking-lot /app/data/lot.json | grep 1234ABC
+            docker run --rm -v parking-lot-ci-data:/app/data parking-lot leave 1234ABC
+
+  publish:
+    needs: check
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and publish the image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/esade-swdev-2026/parking-lot:v1.0
