@@ -45,6 +45,7 @@ uv run parking-lot free 30
 uv run parking-lot free 30 --capacity 50
 uv run parking-lot price 60 
 uv run parking-lot price 60 --price-per-minute 0.10
+uv run parking-lot price-with-cap 200
 uv run parking-lot full 100
 uv run parking-lot stay 9 40 11 15
 uv run parking-lot check-if-car-inside 1234ABC --parked "1234ABC,5678DEF"
