@@ -42,11 +42,12 @@ jobs:
 
       - name: Run the image
         run: docker run --rm parking-lot --help
-        - name: Test persistence between containers
-          run: |
-            docker run --rm -v parking-lot-ci-data:/app/data parking-lot enter 1234ABC
-            docker run --rm -v parking-lot-ci-data:/app/data --entrypoint cat parking-lot /app/data/lot.json | grep 1234ABC
-            docker run --rm -v parking-lot-ci-data:/app/data parking-lot leave 1234ABC
+      
+      - name: Test persistence between containers
+        run: |
+          docker run --rm -v parking-lot-ci-data:/app/data parking-lot enter 1234ABC
+          docker run --rm -v parking-lot-ci-data:/app/data --entrypoint cat parking-lot /app/data/lot.json | grep 1234ABC
+          docker run --rm -v parking-lot-ci-data:/app/data parking-lot leave 1234ABC
 
   publish:
     needs: check
