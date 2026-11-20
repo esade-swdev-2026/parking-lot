@@ -204,6 +204,9 @@ The app saves its state in `/app/data/lot.json` inside the container. A named vo
 keeps that folder outside the image. Each `docker run --rm` creates a new container
 and removes it when it finishes, but the volume keeps the parking state for the next one.
 
+Warning: deleting the `parking-lot-data` volume removes all previously saved
+parking data. Only run this command if you want to start with an empty lot.
+
 ```
 docker volume rm --force parking-lot-data
 docker run --rm -v parking-lot-data:/app/data parking-lot enter 1234ABC
@@ -221,6 +224,9 @@ with the minutes and the price.
 
 The release pipeline publishes the image to GitHub Container Registry when the `v1.0`
 tag is pushed. To run it without building anything:
+
+Warning: deleting the `parking-lot-data` volume removes all previously saved
+parking data. Only run this command if you want to start with an empty lot.
 
 ```
 docker pull ghcr.io/esade-swdev-2026/parking-lot:v1.0
