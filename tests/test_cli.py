@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 from typer.testing import CliRunner
 
@@ -50,10 +52,6 @@ def test_free_rejects_cars_that_are_not_a_number() -> None:
             ["check-if-car-inside", "9999ZZZ", "--parked", "1234ABC,5678DEF"],
             "9999ZZZ is not inside the parking lot",
         ),
-        (
-            ["check-if-car-inside", "1234ABC"],
-            "1234ABC is not inside the parking lot",
-        ),
     ],
 )
 def test_check_if_car_inside_reports_where_the_car_is(
@@ -62,6 +60,13 @@ def test_check_if_car_inside_reports_where_the_car_is(
     result = runner.invoke(app, arguments)
     assert result.exit_code == 0
     assert expected_message in result.stdout
+
+
+def test_check_if_car_inside_without_parked_and_empty_lot(tmp_path: Path) -> None:
+    lot_file = tmp_path / "lot.json"
+    result = runner.invoke(app, ["check-if-car-inside", "1234ABC", "--lot-file", str(lot_file)])
+    assert result.exit_code == 0
+    assert "1234ABC is not inside the parking lot" in result.stdout
 
 
 def test_check_if_car_inside_rejects_an_empty_plate() -> None:
