@@ -1,10 +1,11 @@
+from datetime import datetime, timedelta
 from pathlib import Path
 
 import pytest
 from typer.testing import CliRunner
 
 from parking_lot.cli import app
-from parking_lot.storage import load_lot
+from parking_lot.storage import load_lot, save_lot
 
 runner = CliRunner()
 
@@ -134,3 +135,38 @@ def test_commands_report_a_damaged_lot_file_without_a_traceback(
     assert "is not valid JSON" in result.stderr
     assert "Traceback" not in result.output
     assert lot_file.read_text(encoding="utf-8") == "{not json"
+
+
+def test_leave_shows_the_minutes_and_the_price(tmp_path: Path) -> None:
+    lot_file = tmp_path / "lot.json"
+    save_lot(lot_file, {"1234ABC": datetime.now() - timedelta(minutes=60)})
+
+    result = runner.invoke(app, ["leave", "1234ABC", "--lot-file", str(lot_file)])
+
+    assert result.exit_code == 0
+    assert "Parked for 60 minutes" in result.stdout
+    assert "Price to pay with daily cap: 3.00€" in result.stdout
+
+
+def test_leave_applies_the_daily_cap(tmp_path: Path) -> None:
+    lot_file = tmp_path / "lot.json"
+    save_lot(lot_file, {"1234ABC": datetime.now() - timedelta(hours=10)})
+
+    result = runner.invoke(
+        app, ["leave", "1234ABC", "--daily-cap", "15", "--lot-file", str(lot_file)]
+    )
+
+    assert result.exit_code == 0
+    assert "Price to pay with daily cap: 15.00€" in result.stdout
+
+
+def test_leave_keeps_the_car_when_the_price_is_invalid(tmp_path: Path) -> None:
+    lot_file = tmp_path / "lot.json"
+    runner.invoke(app, ["enter", "1234ABC", "--lot-file", str(lot_file)])
+
+    result = runner.invoke(
+        app, ["leave", "1234ABC", "--daily-cap", "0", "--lot-file", str(lot_file)]
+    )
+
+    assert result.exit_code == 1
+    assert "1234ABC" in load_lot(lot_file)

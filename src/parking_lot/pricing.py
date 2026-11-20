@@ -3,6 +3,7 @@ import math
 from parking_lot.parking_functions import price_to_pay_for_park
 
 DEFAULT_DAILY_CAP = 20.0
+MINUTES_PER_DAY = 24 * 60
 
 
 def price_with_daily_cap(
@@ -14,18 +15,11 @@ def price_with_daily_cap(
     if not 0 < daily_cap < math.inf:
         raise ValueError("Daily cap must be greater than zero")
 
-    if minutes < 0 or price_per_minute < 0:
-        return price_to_pay_for_park(minutes, price_per_minute)
+    if minutes < 0:
+        raise ValueError("minutes cannot be negative")
 
-    full_days, remaining_minutes = divmod(minutes, 1440)
-
-    full_day_price = min(
-        price_to_pay_for_park(1440, price_per_minute),
-        daily_cap,
-    )
-    remaining_price = min(
-        price_to_pay_for_park(remaining_minutes, price_per_minute),
-        daily_cap,
-    )
+    full_day_price = min(price_to_pay_for_park(MINUTES_PER_DAY, price_per_minute), daily_cap)
+    full_days, remaining_minutes = divmod(minutes, MINUTES_PER_DAY)
+    remaining_price = min(price_to_pay_for_park(remaining_minutes, price_per_minute), daily_cap)
 
     return full_days * full_day_price + remaining_price
