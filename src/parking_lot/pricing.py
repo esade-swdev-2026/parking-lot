@@ -1,3 +1,5 @@
+import math
+
 from parking_lot.parking_functions import price_to_pay_for_park
 
 DEFAULT_DAILY_CAP = 20.0
@@ -9,7 +11,7 @@ def price_with_daily_cap(
     daily_cap: float = DEFAULT_DAILY_CAP,
 ) -> float:
     """Calculate parking price with a cap for each 24-hour period."""
-    if daily_cap <= 0:
+    if not 0 < daily_cap < math.inf:
         raise ValueError("Daily cap must be greater than zero")
 
     if minutes < 0 or price_per_minute < 0:
