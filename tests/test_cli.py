@@ -237,3 +237,39 @@ def test_stay_rejects_impossible_times(arguments: list[str], expected_error: str
 def test_stay_rejects_wrong_arguments(arguments: list[str]) -> None:
     result = runner.invoke(app, arguments)
     assert result.exit_code == 2
+
+
+@pytest.mark.parametrize("command", ["free", "full"])
+def test_free_and_full_reject_a_capacity_that_is_not_positive(command: str) -> None:
+    result = runner.invoke(app, [command, "0", "--capacity", "0"])
+    assert result.exit_code == 1
+    assert "Invalid capacity" in result.stderr
+
+
+@pytest.mark.parametrize("command", ["price", "price-with-cap"])
+def test_price_commands_reject_a_price_that_is_not_a_number(command: str) -> None:
+    result = runner.invoke(app, [command, "60", "--price-per-minute", "nan"])
+    assert result.exit_code == 1
+    assert "finite number" in result.stderr
+
+
+def test_enter_says_a_duplicate_is_already_inside_even_when_full(tmp_path: Path) -> None:
+    lot_file = tmp_path / "lot.json"
+    runner.invoke(app, ["enter", "1234ABC", "--capacity", "1", "--lot-file", str(lot_file)])
+
+    result = runner.invoke(
+        app, ["enter", "1234ABC", "--capacity", "1", "--lot-file", str(lot_file)]
+    )
+
+    assert result.exit_code == 1
+    assert "1234ABC is already inside" in result.stderr
+
+
+def test_enter_rejects_an_invalid_plate(tmp_path: Path) -> None:
+    lot_file = tmp_path / "lot.json"
+
+    result = runner.invoke(app, ["enter", "!!@@", "--lot-file", str(lot_file)])
+
+    assert result.exit_code == 1
+    assert "not a valid license plate" in result.stderr
+    assert not lot_file.exists()

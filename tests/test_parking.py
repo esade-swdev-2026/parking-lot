@@ -1,3 +1,4 @@
+import math
 from datetime import datetime
 
 import pytest
@@ -7,6 +8,7 @@ from parking_lot.parking_functions import (
     car_is_inside,
     car_leaves_parking,
     free_spaces_in_parking,
+    is_valid_plate,
     minutes_parked,
     normalize_plate,
     parking_is_full,
@@ -166,3 +168,39 @@ def test_parse_parked_plates_normalizes_and_skips_empty_entries() -> None:
 
 def test_parse_parked_plates_of_an_empty_text_is_empty() -> None:
     assert parse_parked_plates("") == set()
+
+
+def test_car_enter_parking_reports_a_duplicate_even_when_full() -> None:
+    with pytest.raises(ValueError, match="already inside"):
+        car_enter_parking({"1234ABC": NINE}, "1234ABC", TEN, 1)
+
+
+@pytest.mark.parametrize("plate", ["", "A", "!!@@", "1234 ABC", "ABCDEFGHIJK"])
+def test_car_enter_parking_rejects_an_invalid_plate(plate: str) -> None:
+    with pytest.raises(ValueError, match="not a valid license plate"):
+        car_enter_parking({}, plate, NINE, 100)
+
+
+@pytest.mark.parametrize(
+    ("plate", "expected"),
+    [("1234ABC", True), ("AB", True), ("A", False), ("12-34", False), ("ABC 123", False)],
+)
+def test_is_valid_plate(plate: str, expected: bool) -> None:
+    assert is_valid_plate(plate) is expected
+
+
+@pytest.mark.parametrize("capacity", [0, -5])
+def test_validate_occupied_spaces_rejects_a_capacity_that_is_not_positive(capacity: int) -> None:
+    with pytest.raises(ValueError, match="Invalid capacity"):
+        validate_occupied_spaces(0, capacity)
+
+
+def test_validate_occupied_spaces_explains_too_many_cars() -> None:
+    with pytest.raises(ValueError, match="2 cars do not fit in 1 spaces"):
+        validate_occupied_spaces(2, 1)
+
+
+@pytest.mark.parametrize("price_per_minute", [math.nan, math.inf])
+def test_price_to_pay_rejects_a_price_that_is_not_finite(price_per_minute: float) -> None:
+    with pytest.raises(ValueError, match="finite number"):
+        price_to_pay_for_park(60, price_per_minute)

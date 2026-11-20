@@ -1,14 +1,20 @@
+import math
+import re
 from datetime import datetime
 
 ANY_YEAR = 2000
 ANY_MONTH = 1
 ANY_DAY = 1
 SECONDS_PER_MINUTE = 60
+VALID_PLATE = re.compile(r"[A-Z0-9]{2,10}")
 
 
 def normalize_plate(plate: str) -> str:
-    """Normalize a license plate by removing outer spaces and using uppercase."""
     return plate.strip().upper()
+
+
+def is_valid_plate(plate: str) -> bool:
+    return VALID_PLATE.fullmatch(plate) is not None
 
 
 def parse_parked_plates(parked: str) -> set[str]:
@@ -22,10 +28,12 @@ def car_is_inside(cars: dict[str, datetime], plate: str) -> bool:
 def car_enter_parking(
     cars: dict[str, datetime], plate: str, entry_time: datetime, capacity: int
 ) -> dict[str, datetime]:
-    if parking_is_full(len(cars), capacity):
-        raise ValueError("the parking lot is full")
+    if not is_valid_plate(plate):
+        raise ValueError(f"{plate} is not a valid license plate: use 2 to 10 letters or digits")
     if car_is_inside(cars, plate):
         raise ValueError(f"{plate} is already inside")
+    if parking_is_full(len(cars), capacity):
+        raise ValueError("the parking lot is full")
     new_cars = dict(cars)
     new_cars[plate] = entry_time
     return new_cars
@@ -51,14 +59,22 @@ def minutes_parked(entry_time: datetime, exit_time: datetime) -> int:
 def price_to_pay_for_park(minutes: int, price_per_minute: float) -> float:
     if minutes < 0:
         raise ValueError("minutes cannot be negative")
+    if not math.isfinite(price_per_minute):
+        raise ValueError("price per minute must be a finite number")
     if price_per_minute < 0:
         raise ValueError("price per minute cannot be negative")
     return minutes * price_per_minute
 
 
 def validate_occupied_spaces(occupied: int, capacity: int) -> None:
-    if occupied < 0 or occupied > capacity:
-        raise ValueError("Invalid number of parking spaces")
+    if capacity <= 0:
+        raise ValueError("Invalid capacity: it must be greater than zero")
+    if occupied < 0:
+        raise ValueError("Invalid number of parking spaces: occupied cannot be negative")
+    if occupied > capacity:
+        raise ValueError(
+            f"Invalid number of parking spaces: {occupied} cars do not fit in {capacity} spaces"
+        )
 
 
 def free_spaces_in_parking(occupied: int, capacity: int) -> int:

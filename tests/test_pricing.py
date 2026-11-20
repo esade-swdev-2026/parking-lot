@@ -1,3 +1,5 @@
+import math
+
 import pytest
 
 from parking_lot.pricing import price_with_daily_cap
@@ -36,3 +38,9 @@ def test_negative_minutes() -> None:
 def test_negative_price_per_minute() -> None:
     with pytest.raises(ValueError):
         price_with_daily_cap(60, -0.05)
+
+
+@pytest.mark.parametrize("daily_cap", [0.0, math.nan, math.inf])
+def test_daily_cap_must_be_a_positive_finite_number(daily_cap: float) -> None:
+    with pytest.raises(ValueError):
+        price_with_daily_cap(60, 0.05, daily_cap)
