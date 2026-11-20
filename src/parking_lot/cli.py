@@ -11,6 +11,7 @@ from parking_lot.parking_functions import (
     minutes_parked,
     normalize_plate,
     parking_is_full,
+    parse_parked_plates,
     price_to_pay_for_park,
     time_of_day,
 )
@@ -132,15 +133,27 @@ def stay(
 @app.command(help="Check whether a license plate is in the parking lot.")
 def check_if_car_inside(
     plate: str = typer.Argument(help="License plate to look for in the parking lot."),
-    parked: str = typer.Option("", help="Comma-separated list of parked license plates."),
+    parked: str | None = typer.Option(
+        None,
+        help="Comma-separated list of parked license plates. If omitted, the saved lot is used.",
+    ),
+    lot_file: Annotated[
+        Path, typer.Option(help="File where the parking lot is saved.")
+    ] = DEFAULT_LOT_FILE,
 ) -> None:
     plate = normalize_plate(plate)
-
     if not plate:
         typer.echo("The license plate cannot be empty", err=True)
         raise typer.Exit(code=1)
 
-    cars = [normalize_plate(car) for car in parked.split(",") if car.strip()]
+    if parked is None:
+        try:
+            cars = set(load_lot(lot_file))
+        except ValueError as error:
+            typer.echo(str(error), err=True)
+            raise typer.Exit(code=1) from error
+    else:
+        cars = parse_parked_plates(parked)
 
     if plate in cars:
         typer.echo(f"{plate} is inside the parking lot")

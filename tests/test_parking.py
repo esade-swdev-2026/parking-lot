@@ -10,6 +10,7 @@ from parking_lot.parking_functions import (
     minutes_parked,
     normalize_plate,
     parking_is_full,
+    parse_parked_plates,
     price_to_pay_for_park,
     time_of_day,
     validate_occupied_spaces,
@@ -157,3 +158,11 @@ def test_validate_occupied_spaces_accepts_a_full_parking() -> None:
 def test_validate_occupied_spaces_rejects_negative_cars() -> None:
     with pytest.raises(ValueError):
         validate_occupied_spaces(-1, 100)
+
+
+def test_parse_parked_plates_normalizes_and_skips_empty_entries() -> None:
+    assert parse_parked_plates(" abc123 , DEF456,,  ") == {"ABC123", "DEF456"}
+
+
+def test_parse_parked_plates_of_an_empty_text_is_empty() -> None:
+    assert parse_parked_plates("") == set()

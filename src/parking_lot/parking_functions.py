@@ -11,6 +11,10 @@ def normalize_plate(plate: str) -> str:
     return plate.strip().upper()
 
 
+def parse_parked_plates(parked: str) -> set[str]:
+    return {normalize_plate(plate) for plate in parked.split(",") if plate.strip()}
+
+
 def car_is_inside(cars: dict[str, datetime], plate: str) -> bool:
     return plate in cars
 
