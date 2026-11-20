@@ -1,7 +1,9 @@
 from datetime import datetime
 from pathlib import Path
 
-from parking_lot.storage import load_lot, save_lot
+import pytest
+
+from parking_lot.storage import LotFileError, load_lot, save_lot
 
 
 def test_load_lot_returns_an_empty_lot_when_the_file_does_not_exist(tmp_path: Path) -> None:
@@ -23,3 +25,23 @@ def test_save_lot_creates_the_folder_when_it_does_not_exist(tmp_path: Path) -> N
     save_lot(path, {"1234ABC": datetime(2026, 11, 20, 9, 30)})
 
     assert path.exists()
+
+
+@pytest.mark.parametrize(
+    "content",
+    ["{not json", "[1, 2]", '{"1234ABC": "not a date"}', '{"1234ABC": 5}'],
+)
+def test_load_lot_rejects_a_damaged_file(tmp_path: Path, content: str) -> None:
+    path = tmp_path / "lot.json"
+    path.write_text(content, encoding="utf-8")
+
+    with pytest.raises(LotFileError):
+        load_lot(path)
+
+
+def test_save_lot_reports_a_folder_it_cannot_create(tmp_path: Path) -> None:
+    blocking_file = tmp_path / "data"
+    blocking_file.write_text("", encoding="utf-8")
+
+    with pytest.raises(LotFileError):
+        save_lot(blocking_file / "lot.json", {})

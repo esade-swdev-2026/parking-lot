@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import pytest
 from typer.testing import CliRunner
 
 from parking_lot.cli import app
@@ -109,3 +110,27 @@ def test_check_if_car_inside_uses_parked_instead_of_the_lot_file(tmp_path: Path)
 
     assert result.exit_code == 0
     assert "1234ABC is not inside the parking lot" in result.stdout
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        ["free"],
+        ["full"],
+        ["check-if-car-inside", "1234ABC"],
+        ["enter", "1234ABC"],
+        ["leave", "1234ABC"],
+    ],
+)
+def test_commands_report_a_damaged_lot_file_without_a_traceback(
+    tmp_path: Path, command: list[str]
+) -> None:
+    lot_file = tmp_path / "lot.json"
+    lot_file.write_text("{not json", encoding="utf-8")
+
+    result = runner.invoke(app, [*command, "--lot-file", str(lot_file)])
+
+    assert result.exit_code == 1
+    assert "is not valid JSON" in result.stderr
+    assert "Traceback" not in result.output
+    assert lot_file.read_text(encoding="utf-8") == "{not json"
