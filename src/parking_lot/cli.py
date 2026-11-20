@@ -39,9 +39,9 @@ def free(
         Path, typer.Option(help="File where the parking lot is saved.")
     ] = DEFAULT_LOT_FILE,
 ) -> None:
-    if occupied is None:
-        occupied = len(load_lot(lot_file))
     try:
+        if occupied is None:
+            occupied = len(load_lot(lot_file))
         spaces = free_spaces_in_parking(occupied, capacity)
     except ValueError as error:
         typer.echo(str(error), err=True)
@@ -95,9 +95,9 @@ def full(
         Path, typer.Option(help="File where the parking lot is saved.")
     ] = DEFAULT_LOT_FILE,
 ) -> None:
-    if occupied is None:
-        occupied = len(load_lot(lot_file))
     try:
+        if occupied is None:
+            occupied = len(load_lot(lot_file))
         is_full = parking_is_full(occupied, capacity)
     except ValueError as error:
         typer.echo(str(error), err=True)
@@ -175,10 +175,10 @@ def enter(
         raise typer.Exit(code=1)
     try:
         cars = car_enter_parking(load_lot(lot_file), plate, datetime.now(), capacity)
+        save_lot(lot_file, cars)
     except ValueError as error:
         typer.echo(str(error), err=True)
         raise typer.Exit(code=1) from error
-    save_lot(lot_file, cars)
     typer.echo(f"{plate} entered the parking lot")
 
 
@@ -195,8 +195,8 @@ def leave(
         raise typer.Exit(code=1)
     try:
         cars = car_leaves_parking(load_lot(lot_file), plate)
+        save_lot(lot_file, cars)
     except ValueError as error:
         typer.echo(str(error), err=True)
         raise typer.Exit(code=1) from error
-    save_lot(lot_file, cars)
     typer.echo(f"{plate} left the parking lot")
