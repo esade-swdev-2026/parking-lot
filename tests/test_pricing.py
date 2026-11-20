@@ -2,7 +2,7 @@ import math
 
 import pytest
 
-from parking_lot.pricing import price_with_daily_cap
+from parking_lot.pricing import MINUTES_PER_DAY, price_with_daily_cap
 
 
 def test_price_below_daily_cap() -> None:
@@ -44,3 +44,7 @@ def test_negative_price_per_minute() -> None:
 def test_daily_cap_must_be_a_positive_finite_number(daily_cap: float) -> None:
     with pytest.raises(ValueError):
         price_with_daily_cap(60, 0.05, daily_cap)
+
+
+def test_price_one_minute_before_a_full_day_is_capped() -> None:
+    assert price_with_daily_cap(MINUTES_PER_DAY - 1, 0.05) == pytest.approx(20.0)

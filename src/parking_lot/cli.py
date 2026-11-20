@@ -182,9 +182,15 @@ def enter(
     typer.echo(f"{plate} entered the parking lot")
 
 
-@app.command(help="Register a car leaving the parking lot.")
+@app.command(help="Register a car leaving the parking lot and show what it has to pay.")
 def leave(
     plate: str = typer.Argument(help="License plate of the car leaving."),
+    price_per_minute: float = typer.Option(
+        DEFAULT_PRICE_PER_MINUTE, help="Parking price per minute in euros."
+    ),
+    daily_cap: float = typer.Option(
+        DEFAULT_DAILY_CAP, help="Maximum parking price per 24-hour period in euros."
+    ),
     lot_file: Annotated[
         Path, typer.Option(help="File where the parking lot is saved.")
     ] = DEFAULT_LOT_FILE,
@@ -194,9 +200,14 @@ def leave(
         typer.echo("The license plate cannot be empty", err=True)
         raise typer.Exit(code=1)
     try:
-        cars = car_leaves_parking(load_lot(lot_file), plate)
-        save_lot(lot_file, cars)
+        cars = load_lot(lot_file)
+        cars_after_leaving = car_leaves_parking(cars, plate)
+        minutes = minutes_parked(cars[plate], datetime.now())
+        total = price_with_daily_cap(minutes, price_per_minute, daily_cap)
+        save_lot(lot_file, cars_after_leaving)
     except ValueError as error:
         typer.echo(str(error), err=True)
         raise typer.Exit(code=1) from error
     typer.echo(f"{plate} left the parking lot")
+    typer.echo(f"Parked for {minutes} minutes")
+    typer.echo(f"Price to pay with daily cap: {total:.2f}€")
