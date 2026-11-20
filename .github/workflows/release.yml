@@ -48,13 +48,12 @@ jobs:
         env:
           VOLUME: parking-lot-ci-${{ github.run_id }}
         run: |
-          docker volume rm --force "$VOLUME"
+          trap 'docker volume rm --force "$VOLUME"' EXIT
           docker run --rm -v "$VOLUME":/app/data parking-lot enter 1234ABC
           docker run --rm -v "$VOLUME":/app/data --entrypoint cat parking-lot /app/data/lot.json | grep 1234ABC
           docker run --rm -v "$VOLUME":/app/data parking-lot check-if-car-inside 1234ABC | grep "is inside"
           docker run --rm -v "$VOLUME":/app/data parking-lot leave 1234ABC
           test "$(docker run --rm -v "$VOLUME":/app/data --entrypoint cat parking-lot /app/data/lot.json)" = "{}"
-          docker volume rm "$VOLUME"
 
   publish:
     needs: check
