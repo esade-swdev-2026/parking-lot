@@ -5,6 +5,7 @@ on:
   push:
     tags:
       - "v1.0"
+      - "v1.0.*"
 
 permissions:
   contents: read
@@ -44,10 +45,16 @@ jobs:
         run: docker run --rm parking-lot --help
       
       - name: Test persistence between containers
+        env:
+          VOLUME: parking-lot-ci-${{ github.run_id }}
         run: |
-          docker run --rm -v parking-lot-ci-data:/app/data parking-lot enter 1234ABC
-          docker run --rm -v parking-lot-ci-data:/app/data --entrypoint cat parking-lot /app/data/lot.json | grep 1234ABC
-          docker run --rm -v parking-lot-ci-data:/app/data parking-lot leave 1234ABC
+          docker volume rm --force "$VOLUME"
+          docker run --rm -v "$VOLUME":/app/data parking-lot enter 1234ABC
+          docker run --rm -v "$VOLUME":/app/data --entrypoint cat parking-lot /app/data/lot.json | grep 1234ABC
+          docker run --rm -v "$VOLUME":/app/data parking-lot check-if-car-inside 1234ABC | grep "is inside"
+          docker run --rm -v "$VOLUME":/app/data parking-lot leave 1234ABC
+          test "$(docker run --rm -v "$VOLUME":/app/data --entrypoint cat parking-lot /app/data/lot.json)" = "{}"
+          docker volume rm "$VOLUME"
 
   publish:
     needs: check
@@ -68,9 +75,16 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Build and publish the image
         uses: docker/build-push-action@v6
         with:
           context: .
+          platforms: linux/amd64,linux/arm64
           push: true
-          tags: ghcr.io/esade-swdev-2026/parking-lot:v1.0
+          tags: ghcr.io/esade-swdev-2026/parking-lot:${{ github.ref_name }}
