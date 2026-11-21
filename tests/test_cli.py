@@ -184,7 +184,7 @@ def test_full_says_if_the_parking_is_full(arguments: list[str], expected_message
         ["full", "--", "-1"],
     ],
 )
-def test_full_rejects_an_impossible_numer_of_cars(arguments: list[str]) -> None:
+def test_full_rejects_an_impossible_number_of_cars(arguments: list[str]) -> None:
     result = runner.invoke(app, arguments)
     assert result.exit_code == 1
     assert "Invalid number of parking spaces" in result.stderr
