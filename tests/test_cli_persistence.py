@@ -187,8 +187,12 @@ def test_leave_shows_the_entry_and_exit_times(tmp_path: Path) -> None:
     entry_time = (datetime.now() - timedelta(hours=1)).replace(second=0, microsecond=0)
     save_lot(lot_file, {"1234ABC": entry_time})
 
+    before = datetime.now().replace(second=0, microsecond=0)
     result = runner.invoke(app, ["leave", "1234ABC", "--lot-file", str(lot_file)])
+    after = datetime.now()
 
     assert result.exit_code == 0
     assert f"Entry time: {entry_time:%Y-%m-%d %H:%M}" in result.stdout
-    assert "Exit time: " in result.stdout
+    exit_line = next(line for line in result.stdout.splitlines() if line.startswith("Exit time: "))
+    exit_time = datetime.strptime(exit_line.removeprefix("Exit time: "), "%Y-%m-%d %H:%M")
+    assert before <= exit_time <= after
