@@ -11,10 +11,10 @@ runner = CliRunner()
 @pytest.mark.parametrize(
     ("arguments", "expected_message"),
     [
-        (["free", "30"], "70 free spaces"),
+        (["free", "30"], "70 free spaces (30 occupied of 100)"),
         (["free", "0"], "100 free spaces"),
         (["free", "100"], "0 free spaces"),
-        (["free", "30", "--capacity", "50"], "20 free spaces"),
+        (["free", "30", "--capacity", "50"], "20 free spaces (30 occupied of 50)"),
     ],
 )
 def test_free_shows_the_free_spaces(arguments: list[str], expected_message: str) -> None:

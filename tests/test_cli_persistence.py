@@ -65,7 +65,7 @@ def test_free_counts_the_cars_in_the_lot_file(tmp_path: Path) -> None:
     result = runner.invoke(app, ["free", "--capacity", "3", "--lot-file", str(lot_file)])
 
     assert result.exit_code == 0
-    assert "2 free spaces" in result.output
+    assert "2 free spaces (1 occupied of 3)" in result.output
 
 
 def test_full_reads_the_lot_file(tmp_path: Path) -> None:
@@ -170,3 +170,25 @@ def test_leave_keeps_the_car_when_the_price_is_invalid(tmp_path: Path) -> None:
 
     assert result.exit_code == 1
     assert "1234ABC" in load_lot(lot_file)
+
+
+def test_enter_shows_the_entry_time(tmp_path: Path) -> None:
+    lot_file = tmp_path / "lot.json"
+
+    result = runner.invoke(app, ["enter", "1234ABC", "--lot-file", str(lot_file)])
+
+    entry_time = load_lot(lot_file)["1234ABC"]
+    assert result.exit_code == 0
+    assert f"Entry time: {entry_time:%Y-%m-%d %H:%M}" in result.stdout
+
+
+def test_leave_shows_the_entry_and_exit_times(tmp_path: Path) -> None:
+    lot_file = tmp_path / "lot.json"
+    entry_time = (datetime.now() - timedelta(hours=1)).replace(second=0, microsecond=0)
+    save_lot(lot_file, {"1234ABC": entry_time})
+
+    result = runner.invoke(app, ["leave", "1234ABC", "--lot-file", str(lot_file)])
+
+    assert result.exit_code == 0
+    assert f"Entry time: {entry_time:%Y-%m-%d %H:%M}" in result.stdout
+    assert "Exit time: " in result.stdout
