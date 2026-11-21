@@ -44,17 +44,25 @@ Expected output:
 
 ```
 1234ABC entered the parking lot
+Entry time: 2026-11-21 10:30
 5678DEF entered the parking lot
+Entry time: 2026-11-21 10:30
 1234ABC is inside the parking lot
-98 free spaces
+98 free spaces (2 occupied of 100)
 There are free spaces
 1234ABC left the parking lot
+Entry time: 2026-11-21 10:30
+Exit time: 2026-11-21 10:30
 Parked for 0 minutes
 Price to pay with daily cap: 0.00€
 5678DEF left the parking lot
+Entry time: 2026-11-21 10:30
+Exit time: 2026-11-21 10:30
 Parked for 0 minutes
 Price to pay with daily cap: 0.00€
 ```
+
+`enter` and `leave` show the real date and time, so yours will be different.
 
 `leave` charges the time between `enter` and `leave` (0 minutes here, because the car
 has just entered), at 0.05€ per minute with a cap of 20€ for each 24 hours.
@@ -82,8 +90,8 @@ uv run parking-lot check-if-car-inside 1234ABC --parked "1234ABC,5678DEF"
 Expected output:
 
 ```
-70 free spaces
-20 free spaces
+70 free spaces (30 occupied of 100)
+20 free spaces (30 occupied of 50)
 The parking is full
 Price to pay for the parking: 3.00€
 Price to pay for the parking: 6.00€
@@ -101,16 +109,14 @@ with `--parked`; then it only looks in that list.
 
 | Command | What it does | Options |
 |---|---|---|
-| `enter PLATE` | Saves a car and its entry time | `--capacity`, `--lot-file` |
-| `leave PLATE` | Removes a car and shows the minutes and the price | `--price-per-minute`, `--daily-cap`, `--lot-file` |
+| `enter PLATE` | Saves a car and shows its entry time | `--capacity`, `--lot-file` |
+| `leave PLATE` | Removes a car and shows the entry and exit times, the minutes and the price | `--price-per-minute`, `--daily-cap`, `--lot-file` |
 | `check-if-car-inside PLATE` | Says whether a car is inside | `--parked`, `--lot-file` |
-| `free [OCCUPIED]` | Free spaces | `--capacity`, `--lot-file` |
+| `free [OCCUPIED]` | Free, occupied and total spaces | `--capacity`, `--lot-file` |
 | `full [OCCUPIED]` | Whether the lot is full | `--capacity`, `--lot-file` |
 | `price MINUTES` | Price for some minutes | `--price-per-minute` |
 | `price-with-cap MINUTES` | Price with a cap per 24 hours | `--price-per-minute`, `--daily-cap` |
 | `stay H M H M` | Minutes and price between two times of the same day | `--price-per-minute` |
-
-Run `uv run parking-lot COMMAND --help` for the details of each command.
 
 ### Errors
 
@@ -129,10 +135,13 @@ Expected output:
 
 ```
 1234ABC entered the parking lot
+Entry time: 2026-11-21 10:30
 1234ABC is already inside
 9999ZZZ is not inside
 !!@@ is not a valid license plate: use 2 to 10 letters or digits
 1234ABC left the parking lot
+Entry time: 2026-11-21 10:30
+Exit time: 2026-11-21 10:30
 Parked for 0 minutes
 Price to pay with daily cap: 0.00€
 ```
@@ -216,9 +225,9 @@ docker run --rm -v parking-lot-data:/app/data parking-lot leave 1234ABC
 ```
 
 The first command starts from an empty lot, so you can repeat the whole block.
-Expected output: `1234ABC entered the parking lot`, then `1234ABC is inside the parking lot`,
-then the JSON file with `1234ABC` and its entry time, and finally the `leave` message
-with the minutes and the price.
+Expected output: `1234ABC entered the parking lot` with its entry time, then
+`1234ABC is inside the parking lot`, then the JSON file with `1234ABC` and its entry time,
+and finally the `leave` message with the entry and exit times, the minutes and the price.
 
 ### Use the published image
 

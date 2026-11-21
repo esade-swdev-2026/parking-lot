@@ -22,6 +22,7 @@ app = typer.Typer(help="Terminal Parking Lot Manager")
 
 DEFAULT_CAPACITY = 100
 DEFAULT_PRICE_PER_MINUTE = 0.05
+TIME_FORMAT = "%Y-%m-%d %H:%M"
 
 
 @app.callback()
@@ -46,7 +47,7 @@ def free(
     except ValueError as error:
         typer.echo(str(error), err=True)
         raise typer.Exit(code=1) from error
-    typer.echo(f"{spaces} free spaces")
+    typer.echo(f"{spaces} free spaces ({occupied} occupied of {capacity})")
 
 
 @app.command(help="Calculate the parking price for a given number of minutes.")
@@ -173,13 +174,15 @@ def enter(
     if not plate:
         typer.echo("The license plate cannot be empty", err=True)
         raise typer.Exit(code=1)
+    entry_time = datetime.now()
     try:
-        cars = car_enter_parking(load_lot(lot_file), plate, datetime.now(), capacity)
+        cars = car_enter_parking(load_lot(lot_file), plate, entry_time, capacity)
         save_lot(lot_file, cars)
     except ValueError as error:
         typer.echo(str(error), err=True)
         raise typer.Exit(code=1) from error
     typer.echo(f"{plate} entered the parking lot")
+    typer.echo(f"Entry time: {entry_time:{TIME_FORMAT}}")
 
 
 @app.command(help="Register a car leaving the parking lot and show what it has to pay.")
@@ -199,15 +202,18 @@ def leave(
     if not plate:
         typer.echo("The license plate cannot be empty", err=True)
         raise typer.Exit(code=1)
+    exit_time = datetime.now()
     try:
         cars = load_lot(lot_file)
         cars_after_leaving = car_leaves_parking(cars, plate)
-        minutes = minutes_parked(cars[plate], datetime.now())
+        minutes = minutes_parked(cars[plate], exit_time)
         total = price_with_daily_cap(minutes, price_per_minute, daily_cap)
         save_lot(lot_file, cars_after_leaving)
     except ValueError as error:
         typer.echo(str(error), err=True)
         raise typer.Exit(code=1) from error
     typer.echo(f"{plate} left the parking lot")
+    typer.echo(f"Entry time: {cars[plate]:{TIME_FORMAT}}")
+    typer.echo(f"Exit time: {exit_time:{TIME_FORMAT}}")
     typer.echo(f"Parked for {minutes} minutes")
     typer.echo(f"Price to pay with daily cap: {total:.2f}€")
